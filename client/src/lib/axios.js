@@ -1,7 +1,10 @@
 import axios from 'axios';
 
+// Fall back to production backend if VITE_API_URL is missing
+const API_BASE_URL = (import.meta.env.VITE_API_URL || 'https://kinetiqai.onrender.com').replace(/\/$/, '');
+
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: `${API_BASE_URL}/api`,
   headers: {
     'Content-Type': 'application/json',
   },
