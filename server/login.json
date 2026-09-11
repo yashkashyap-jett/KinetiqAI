@@ -1,0 +1,1 @@
+{"success":false,"error":"Invalid email or password","stack":"Error: Invalid email or password\n    at exports.login (/Users/yashkashyap/Downloads/smartGym/server/src/controllers/authController.js:44:13)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)"}

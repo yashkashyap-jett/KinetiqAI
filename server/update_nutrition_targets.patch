@@ -1,0 +1,48 @@
+--- server/src/controllers/nutritionController.js
++++ server/src/controllers/nutritionController.js
+@@ -4,6 +4,7 @@
+ const { generateAIMealPlan, generateAIFoodSwap } = require('../ai/provider');
+ const AppError = require('../utils/AppError');
++const { calculateNutritionTargets } = require('../utils/calculations');
+ 
+ // POST /api/nutrition/generate
+ const generatePlan = async (req, res, next) => {
+@@ -137,10 +138,36 @@
+   }
+ };
+ 
++// PUT /api/nutrition/targets
++const updateTargets = async (req, res, next) => {
++  try {
++    const profile = await Profile.findOne({ userId: req.user._id });
++    if (!profile) {
++      return next(new AppError('Profile not found', 404));
++    }
++
++    const targets = calculateNutritionTargets(profile);
++
++    let plan = await MealPlan.findOne({ userId: req.user._id, isActive: true });
++    if (plan) {
++      plan.dailyCalories = targets.dailyCalories;
++      plan.macroTargets = targets.macroTargets;
++      await plan.save();
++    }
++
++    res.json({
++      success: true,
++      targets,
++      planUpdated: !!plan
++    });
++  } catch (error) {
++    next(error);
++  }
++};
++
+ module.exports = {
+   generatePlan,
+   getActivePlan,
+   getDailyLogs,
+   logMeal,
+   smartSwap,
++  updateTargets,
+ };
