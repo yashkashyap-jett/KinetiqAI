@@ -23,7 +23,18 @@ const app = express();
 app.use(helmet());
 app.use(
   cors({
-    origin: env.CLIENT_URL.split(',').map(url => url.trim()),
+    origin: function (origin, callback) {
+      const allowedOrigins = env.CLIENT_URL.split(',').map(url => url.trim().replace(/\/$/, ''));
+      const incomingOrigin = origin ? origin.replace(/\/$/, '') : null;
+      
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!incomingOrigin || allowedOrigins.includes(incomingOrigin)) {
+        callback(null, true);
+      } else {
+        console.warn(`Blocked by CORS: ${incomingOrigin}`);
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
   })
 );
