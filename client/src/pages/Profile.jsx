@@ -32,13 +32,15 @@ export default function Profile() {
   const handleRegeneratePlans = async () => {
     try {
       setRegenerating(true);
-      await Promise.all([
-        api.post('/workouts/generate'),
-        api.post('/nutrition/generate'),
-      ]);
+      await api.post('/workouts/generate', {}, { timeout: 90000 });
+      await api.post('/nutrition/generate', {}, { timeout: 90000 });
       toast.success('AI Workout & Meal Plans regenerated successfully!');
     } catch (err) {
-      toast.error('Regeneration failed');
+      if (err.code === 'ECONNABORTED') {
+        toast.error('AI engine is taking longer than expected. Please try again.');
+      } else {
+        toast.error('Regeneration failed');
+      }
     } finally {
       setRegenerating(false);
     }

@@ -35,10 +35,14 @@ export default function AICoach() {
     setLoading(true);
 
     try {
-      const res = await api.post('/ai/coach', { history: newMessages });
+      const res = await api.post('/ai/coach', { history: newMessages }, { timeout: 90000 });
       setMessages((prev) => [...prev, { sender: 'ai', content: res.data.response }]);
     } catch (err) {
-      toast.error('AI Coach request failed. Please try again.');
+      if (err.code === 'ECONNABORTED') {
+        toast.error('AI engine is taking longer than expected. Please try again.');
+      } else {
+        toast.error(err.response?.data?.error || 'AI Coach request failed. Please try again.');
+      }
     } finally {
       setLoading(false);
     }

@@ -17,10 +17,14 @@ export default function WeeklyIntelligence() {
   const fetchReview = async () => {
     try {
       setLoading(true);
-      const res = await api.post('/ai/weekly-review');
+      const res = await api.post('/ai/weekly-review', {}, { timeout: 90000 });
       setReview(res.data.review);
     } catch (err) {
-      toast.error('Failed to generate weekly review');
+      if (err.code === 'ECONNABORTED') {
+        toast.error('AI engine is taking longer than expected. Please try again.');
+      } else {
+        toast.error('Failed to generate weekly review');
+      }
     } finally {
       setLoading(false);
     }

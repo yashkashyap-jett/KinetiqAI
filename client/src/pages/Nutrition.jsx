@@ -77,14 +77,18 @@ export default function Nutrition() {
         ? aiMealText 
         : `${foodAmount ? foodAmount + ' of ' : ''}${foodName}`;
       
-      const res = await api.post('/ai/analyze-meal', { mealText: queryText });
+      const res = await api.post('/ai/analyze-meal', { mealText: queryText }, { timeout: 90000 });
       setAiAnalysisResult(res.data.analysis);
       
       if (!isAILogMode && !res.data.analysis.mealName) {
          res.data.analysis.mealName = foodName;
       }
     } catch (err) {
-      toast.error(err.response?.data?.error || 'Unable to analyze this meal right now. Please try again.');
+      if (err.code === 'ECONNABORTED') {
+        toast.error('AI engine is taking longer than expected. Please try again.');
+      } else {
+        toast.error(err.response?.data?.error || 'Unable to analyze this meal right now. Please try again.');
+      }
     } finally {
       setIsAnalyzing(false);
     }
@@ -181,10 +185,14 @@ export default function Nutrition() {
     e.preventDefault();
     try {
       setSwapping(true);
-      const res = await api.post('/nutrition/swap', { originalFood: swapQuery });
+      const res = await api.post('/nutrition/swap', { originalFood: swapQuery }, { timeout: 90000 });
       setSwapResult(res.data.swapResult);
     } catch (err) {
-      toast.error('Smart swap failed');
+      if (err.code === 'ECONNABORTED') {
+        toast.error('AI engine is taking longer than expected. Please try again.');
+      } else {
+        toast.error('Smart swap failed');
+      }
     } finally {
       setSwapping(false);
     }

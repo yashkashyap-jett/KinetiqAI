@@ -40,12 +40,16 @@ export default function Workout() {
   const handleGeneratePlan = async (config) => {
     try {
       setGenerating(true);
-      const res = await api.post('/workouts/generate', { config });
+      const res = await api.post('/workouts/generate', { config }, { timeout: 90000 });
       setPlan(res.data.plan);
       setIsEditing(false);
       toast.success('New AI workout plan generated!');
     } catch (err) {
-      toast.error(err.response?.data?.error || 'Failed to generate workout plan');
+      if (err.code === 'ECONNABORTED') {
+        toast.error('AI engine is taking longer than expected. Please try again.');
+      } else {
+        toast.error(err.response?.data?.error || 'Failed to generate workout plan');
+      }
     } finally {
       setGenerating(false);
     }
@@ -54,11 +58,15 @@ export default function Workout() {
   const handleRegenerate = async () => {
     try {
       setGenerating(true);
-      const res = await api.post('/workouts/generate', { config: plan?.config || null });
+      const res = await api.post('/workouts/generate', { config: plan?.config || null }, { timeout: 90000 });
       setPlan(res.data.plan);
       toast.success('New AI workout plan generated!');
     } catch (err) {
-      toast.error(err.response?.data?.error || 'Unable to generate your workout plan. Please try again.');
+      if (err.code === 'ECONNABORTED') {
+        toast.error('AI engine is taking longer than expected. Please try again.');
+      } else {
+        toast.error(err.response?.data?.error || 'Unable to generate your workout plan. Please try again.');
+      }
     } finally {
       setGenerating(false);
     }
