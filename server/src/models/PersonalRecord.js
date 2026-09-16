@@ -16,6 +16,9 @@ const personalRecordSchema = new mongoose.Schema(
       type: Number, // weight in kg, or reps, or time
       required: true,
     },
+    weight: {
+      type: Number, // weight in kg
+    },
     metricType: {
       type: String,
       enum: ['weight', 'volume', 'reps', 'time'],

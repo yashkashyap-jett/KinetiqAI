@@ -7,6 +7,18 @@ import Input from '../components/common/Input';
 import api from '../lib/axios';
 import toast from 'react-hot-toast';
 
+// Safe display formatting helpers for nutrition values
+const formatMacro = (val) => {
+  if (val === null || val === undefined || isNaN(Number(val))) return '0.00';
+  return Number(val).toFixed(2);
+};
+
+const formatCal = (val) => {
+  if (val === null || val === undefined || isNaN(Number(val))) return '0';
+  const num = Number(val);
+  return num % 1 !== 0 ? num.toFixed(2) : Math.round(num).toString();
+};
+
 export default function Nutrition() {
   const [plan, setPlan] = useState(null);
   const [dailyData, setDailyData] = useState({ logs: [], totals: { calories: 0, protein: 0, carbs: 0, fat: 0, waterMl: 0 } });
@@ -218,7 +230,7 @@ export default function Nutrition() {
             Precision Nutrition Engine
           </h1>
           <p className="text-sm text-text-secondary mt-1">
-            Target: <span className="font-mono text-accent font-semibold">{targetCal} kcal</span> • Protein Target: <span className="font-mono text-success font-semibold">{targetProt}g</span>
+            Target: <span className="font-mono text-accent font-semibold">{formatCal(targetCal)} kcal</span> • Protein Target: <span className="font-mono text-success font-semibold">{formatMacro(targetProt)}g</span>
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -239,8 +251,8 @@ export default function Nutrition() {
         <div className="card-surface p-5 flex flex-col items-center justify-center text-center space-y-3">
           <ProgressRing progress={Math.min(100, Math.round((currentCal / targetCal) * 100))} size={100} strokeWidth={8} color="#2563EB">
             <div className="text-center">
-              <span className="text-xl font-bold font-mono">{currentCal}</span>
-              <span className="text-[10px] block text-text-muted">/ {targetCal} kcal</span>
+              <span className="text-xl font-bold font-mono">{formatCal(currentCal)}</span>
+              <span className="text-[10px] block text-text-muted">/ {formatCal(targetCal)} kcal</span>
             </div>
           </ProgressRing>
           <span className="text-xs font-semibold uppercase tracking-wider text-text-muted">Calories</span>
@@ -250,36 +262,36 @@ export default function Nutrition() {
         <div className="card-surface p-5 space-y-3">
           <div className="flex justify-between items-center text-xs">
             <span className="font-semibold text-text-muted uppercase">PROTEIN</span>
-            <span className="font-mono text-success font-bold">{currentProt} / {targetProt}g</span>
+            <span className="font-mono text-success font-bold">{formatMacro(currentProt)} / {formatMacro(targetProt)}g</span>
           </div>
           <div className="w-full bg-bg-surface-active h-2 rounded-full overflow-hidden">
             <div className="bg-success h-full rounded-full" style={{ width: `${Math.min(100, (currentProt / targetProt) * 100)}%` }} />
           </div>
-          <p className="text-[11px] text-text-muted">{Math.max(0, targetProt - currentProt)}g remaining today</p>
+          <p className="text-[11px] text-text-muted">{formatMacro(Math.max(0, targetProt - currentProt))}g remaining today</p>
         </div>
 
         {/* Carbs */}
         <div className="card-surface p-5 space-y-3">
           <div className="flex justify-between items-center text-xs">
             <span className="font-semibold text-text-muted uppercase">CARBS</span>
-            <span className="font-mono text-accent font-bold">{currentCarb} / {targetCarb}g</span>
+            <span className="font-mono text-accent font-bold">{formatMacro(currentCarb)} / {formatMacro(targetCarb)}g</span>
           </div>
           <div className="w-full bg-bg-surface-active h-2 rounded-full overflow-hidden">
             <div className="bg-accent h-full rounded-full" style={{ width: `${Math.min(100, (currentCarb / targetCarb) * 100)}%` }} />
           </div>
-          <p className="text-[11px] text-text-muted">{Math.max(0, targetCarb - currentCarb)}g remaining today</p>
+          <p className="text-[11px] text-text-muted">{formatMacro(Math.max(0, targetCarb - currentCarb))}g remaining today</p>
         </div>
 
         {/* Fat */}
         <div className="card-surface p-5 space-y-3">
           <div className="flex justify-between items-center text-xs">
             <span className="font-semibold text-text-muted uppercase">FAT</span>
-            <span className="font-mono text-warning font-bold">{currentFat} / {targetFat}g</span>
+            <span className="font-mono text-warning font-bold">{formatMacro(currentFat)} / {formatMacro(targetFat)}g</span>
           </div>
           <div className="w-full bg-bg-surface-active h-2 rounded-full overflow-hidden">
             <div className="bg-warning h-full rounded-full" style={{ width: `${Math.min(100, (currentFat / targetFat) * 100)}%` }} />
           </div>
-          <p className="text-[11px] text-text-muted">{Math.max(0, targetFat - currentFat)}g remaining today</p>
+          <p className="text-[11px] text-text-muted">{formatMacro(Math.max(0, targetFat - currentFat))}g remaining today</p>
         </div>
       </div>
 
@@ -315,10 +327,10 @@ export default function Nutrition() {
                   <span className="font-medium text-text-primary">{log.name}</span>
                 </div>
                 <div className="flex items-center gap-4 font-mono text-text-secondary">
-                  <span>{log.totalCalories} kcal</span>
-                  <span className="text-success font-bold">{log.totalProtein}g P</span>
-                  <span className="hidden sm:inline">{log.totalCarbs}g C</span>
-                  <span className="hidden sm:inline">{log.totalFat}g F</span>
+                  <span>{formatCal(log.totalCalories)} kcal</span>
+                  <span className="text-success font-bold">{formatMacro(log.totalProtein)}g P</span>
+                  <span className="hidden sm:inline">{formatMacro(log.totalCarbs)}g C</span>
+                  <span className="hidden sm:inline">{formatMacro(log.totalFat)}g F</span>
                   
                   {/* Actions */}
                   {log.name !== 'Water Intake' && (
@@ -416,10 +428,10 @@ export default function Nutrition() {
                       </div>
                     </div>
                     <div className="text-right font-mono text-[10px]">
-                      <span className="text-text-primary font-bold">{item.calories} kcal</span>
+                      <span className="text-text-primary font-bold">{formatCal(item.calories)} kcal</span>
                       <br />
-                      <span className="text-success">{item.protein}g P</span>
-                      <span className="text-text-muted ml-1">· {item.carbs}g C · {item.fat}g F</span>
+                      <span className="text-success">{formatMacro(item.protein)}g P</span>
+                      <span className="text-text-muted ml-1">· {formatMacro(item.carbs)}g C · {formatMacro(item.fat)}g F</span>
                     </div>
                   </div>
                 ))}
@@ -428,19 +440,19 @@ export default function Nutrition() {
               <div className="grid grid-cols-4 gap-2 text-center font-mono py-3 border-y border-border/50 bg-bg-surface rounded-lg mt-2">
                 <div>
                   <span className="block text-text-muted text-[10px] uppercase mb-1">Calories</span>
-                  <span className="font-bold text-sm text-text-primary">{aiAnalysisResult.total?.calories || 0}</span>
+                  <span className="font-bold text-sm text-text-primary">{formatCal(aiAnalysisResult.total?.calories || 0)}</span>
                 </div>
                 <div>
                   <span className="block text-text-muted text-[10px] uppercase mb-1">Protein</span>
-                  <span className="font-bold text-sm text-success">{aiAnalysisResult.total?.protein || 0}g</span>
+                  <span className="font-bold text-sm text-success">{formatMacro(aiAnalysisResult.total?.protein || 0)}g</span>
                 </div>
                 <div>
                   <span className="block text-text-muted text-[10px] uppercase mb-1">Carbs</span>
-                  <span className="font-bold text-sm text-accent">{aiAnalysisResult.total?.carbs || 0}g</span>
+                  <span className="font-bold text-sm text-accent">{formatMacro(aiAnalysisResult.total?.carbs || 0)}g</span>
                 </div>
                 <div>
                   <span className="block text-text-muted text-[10px] uppercase mb-1">Fat</span>
-                  <span className="font-bold text-sm text-warning">{aiAnalysisResult.total?.fat || 0}g</span>
+                  <span className="font-bold text-sm text-warning">{formatMacro(aiAnalysisResult.total?.fat || 0)}g</span>
                 </div>
               </div>
 
@@ -495,7 +507,7 @@ export default function Nutrition() {
                 <div key={idx} className="p-3 bg-bg-surface-alt rounded border border-border text-xs space-y-1">
                   <div className="flex justify-between font-bold text-text-primary">
                     <span>{alt.name} ({alt.amount})</span>
-                    <span className="font-mono text-success">{alt.protein}g P • {alt.calories} kcal</span>
+                    <span className="font-mono text-success">{formatMacro(alt.protein)}g P • {formatCal(alt.calories)} kcal</span>
                   </div>
                   <p className="text-[11px] text-text-muted">{alt.reasoning}</p>
                 </div>

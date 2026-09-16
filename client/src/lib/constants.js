@@ -63,5 +63,4 @@ export const NAV_ITEMS = [
 export const NAV_ITEMS_SECONDARY = [
   { path: '/habits', label: 'Habits', icon: 'Target' },
   { path: '/achievements', label: 'Achievements', icon: 'Trophy' },
-  { path: '/settings', label: 'Settings', icon: 'Settings' },
 ];

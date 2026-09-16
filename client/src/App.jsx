@@ -18,6 +18,7 @@ const Progress = lazy(() => import('./pages/Progress'));
 const AICoach = lazy(() => import('./pages/AICoach'));
 const WeeklyIntelligence = lazy(() => import('./pages/WeeklyIntelligence'));
 const Habits = lazy(() => import('./pages/Habits'));
+const Achievements = lazy(() => import('./pages/Achievements'));
 const Profile = lazy(() => import('./pages/Profile'));
 
 // Protected Route wrapper
@@ -94,7 +95,7 @@ function AppRoutes() {
           <Route path="/ai-coach" element={<AICoach />} />
           <Route path="/weekly-intelligence" element={<WeeklyIntelligence />} />
           <Route path="/habits" element={<Habits />} />
-          <Route path="/settings" element={<Profile />} />
+          <Route path="/achievements" element={<Achievements />} />
           <Route path="/profile" element={<Profile />} />
         </Route>
 

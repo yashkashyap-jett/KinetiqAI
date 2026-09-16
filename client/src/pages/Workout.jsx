@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Play, RefreshCw, Sparkles, Settings } from 'lucide-react';
+import { Play, RefreshCw, Sparkles, Settings, Dumbbell, Trophy } from 'lucide-react';
 import Button from '../components/common/Button';
 import Badge from '../components/common/Badge';
 import { SkeletonCard } from '../components/common/SkeletonLoader';
 import WorkoutSetup from '../components/workout/WorkoutSetup';
+import ManualWorkoutLog from '../components/workout/ManualWorkoutLog';
+import PersonalRecords from '../components/workout/PersonalRecords';
 import api from '../lib/axios';
 import toast from 'react-hot-toast';
 
@@ -13,6 +15,7 @@ export default function Workout() {
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [activeTab, setActiveTab] = useState('ai'); // 'ai' | 'logs' | 'prs'
   
   const [selectedDayIndex, setSelectedDayIndex] = useState(() => {
     const d = new Date().getDay();
@@ -105,9 +108,53 @@ export default function Workout() {
         </div>
       </div>
 
-      {/* Days Tabs */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
-        {days.map((day, idx) => (
+      {/* Main Section Tabs */}
+      <div className="flex items-center gap-2 border-b border-border pb-3 overflow-x-auto scrollbar-none">
+        <button
+          onClick={() => setActiveTab('ai')}
+          className={`px-4 py-2 rounded-[var(--radius-md)] text-sm font-semibold transition-all cursor-pointer flex items-center gap-2 shrink-0 ${
+            activeTab === 'ai'
+              ? 'bg-accent text-white shadow-sm'
+              : 'bg-bg-surface text-text-secondary hover:text-text-primary hover:bg-bg-surface-alt border border-border'
+          }`}
+        >
+          <Sparkles className="w-4 h-4" />
+          AI Workout Plan
+        </button>
+
+        <button
+          onClick={() => setActiveTab('logs')}
+          className={`px-4 py-2 rounded-[var(--radius-md)] text-sm font-semibold transition-all cursor-pointer flex items-center gap-2 shrink-0 ${
+            activeTab === 'logs'
+              ? 'bg-accent text-white shadow-sm'
+              : 'bg-bg-surface text-text-secondary hover:text-text-primary hover:bg-bg-surface-alt border border-border'
+          }`}
+        >
+          <Dumbbell className="w-4 h-4" />
+          Manual Workout Log
+          <span className="text-[10px] px-1.5 py-0.5 rounded bg-bg-surface-alt text-text-muted border border-border">
+            7-Day
+          </span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('prs')}
+          className={`px-4 py-2 rounded-[var(--radius-md)] text-sm font-semibold transition-all cursor-pointer flex items-center gap-2 shrink-0 ${
+            activeTab === 'prs'
+              ? 'bg-accent text-white shadow-sm'
+              : 'bg-bg-surface text-text-secondary hover:text-text-primary hover:bg-bg-surface-alt border border-border'
+          }`}
+        >
+          <Trophy className="w-4 h-4 text-warning" />
+          Personal Records (PR)
+        </button>
+      </div>
+
+      {activeTab === 'ai' && (
+        <>
+          {/* Days Tabs */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+            {days.map((day, idx) => (
           <button
             key={idx}
             onClick={() => setSelectedDayIndex(day.dayIndex)}
@@ -211,6 +258,12 @@ export default function Workout() {
           )}
         </div>
       )}
+        </>
+      )}
+
+      {activeTab === 'logs' && <ManualWorkoutLog />}
+
+      {activeTab === 'prs' && <PersonalRecords />}
     </div>
   );
 }

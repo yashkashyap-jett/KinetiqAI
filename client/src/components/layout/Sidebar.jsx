@@ -8,7 +8,6 @@ import {
   Brain,
   Target,
   Trophy,
-  Settings,
   LogOut,
   User,
   Activity,
@@ -22,7 +21,6 @@ const iconMap = {
   Brain,
   Target,
   Trophy,
-  Settings,
 };
 
 const mainNav = [
@@ -36,7 +34,6 @@ const mainNav = [
 const secondaryNav = [
   { path: '/habits', label: 'Habits', icon: 'Target' },
   { path: '/achievements', label: 'Achievements', icon: 'Trophy' },
-  { path: '/settings', label: 'Settings', icon: 'Settings' },
 ];
 
 export default function Sidebar() {
