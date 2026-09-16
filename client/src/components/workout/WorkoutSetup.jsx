@@ -25,6 +25,59 @@ export default function WorkoutSetup({ onComplete, loading }) {
 
   const updateConfig = (key, value) => setConfig({ ...config, [key]: value });
 
+  const syncCustomScheduleWithDays = (schedule, targetDays) => {
+    const currentSchedule = schedule && schedule.length === 7
+      ? schedule.map(d => ({ ...d, muscles: [...(d.muscles || [])] }))
+      : [
+          { dayName: 'Monday', isRest: false, muscles: [] },
+          { dayName: 'Tuesday', isRest: false, muscles: [] },
+          { dayName: 'Wednesday', isRest: false, muscles: [] },
+          { dayName: 'Thursday', isRest: false, muscles: [] },
+          { dayName: 'Friday', isRest: false, muscles: [] },
+          { dayName: 'Saturday', isRest: true, muscles: [] },
+          { dayName: 'Sunday', isRest: true, muscles: [] },
+        ];
+
+    const hasCustomMuscles = currentSchedule.some(d => d.muscles && d.muscles.length > 0);
+
+    if (!hasCustomMuscles) {
+      return currentSchedule.map((d, idx) => ({
+        ...d,
+        isRest: idx >= targetDays,
+        muscles: [],
+      }));
+    }
+
+    let currentWorkoutCount = currentSchedule.filter(d => !d.isRest).length;
+
+    if (currentWorkoutCount < targetDays) {
+      for (let i = 0; i < currentSchedule.length && currentWorkoutCount < targetDays; i++) {
+        if (currentSchedule[i].isRest) {
+          currentSchedule[i].isRest = false;
+          currentWorkoutCount++;
+        }
+      }
+    } else if (currentWorkoutCount > targetDays) {
+      for (let i = currentSchedule.length - 1; i >= 0 && currentWorkoutCount > targetDays; i--) {
+        if (!currentSchedule[i].isRest) {
+          currentSchedule[i].isRest = true;
+          currentSchedule[i].muscles = [];
+          currentWorkoutCount--;
+        }
+      }
+    }
+
+    return currentSchedule;
+  };
+
+  const handleDaysPerWeekChange = (d) => {
+    setConfig(prev => ({
+      ...prev,
+      daysPerWeek: d,
+      customSchedule: syncCustomScheduleWithDays(prev.customSchedule, d),
+    }));
+  };
+
   const nextStep = () => setStep(step + 1);
   const prevStep = () => setStep(step - 1);
 
@@ -74,11 +127,11 @@ export default function WorkoutSetup({ onComplete, loading }) {
   const renderStep3 = () => (
     <div className="space-y-6">
       <h3 className="text-xl font-bold font-display">How many days per week?</h3>
-      <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
-        {[2, 3, 4, 5, 6, 7].map(d => (
+      <div className="grid grid-cols-4 sm:grid-cols-7 gap-2 sm:gap-3">
+        {[1, 2, 3, 4, 5, 6, 7].map(d => (
           <button
             key={d}
-            onClick={() => updateConfig('daysPerWeek', d)}
+            onClick={() => handleDaysPerWeekChange(d)}
             className={`p-4 rounded-[var(--radius-md)] border text-center transition-all ${
               config.daysPerWeek === d ? 'border-accent bg-accent/10' : 'border-border bg-bg-surface hover:border-accent/50'
             }`}
@@ -112,7 +165,15 @@ export default function WorkoutSetup({ onComplete, loading }) {
       </div>
       <div className="flex gap-3">
         <Button variant="secondary" onClick={prevStep}>Back</Button>
-        <Button onClick={() => config.splitType === 'Custom Split' ? setStep(4.5) : setStep(5)} className="flex-1">Continue <ArrowRight className="w-4 h-4" /></Button>
+        <Button onClick={() => {
+          if (config.splitType === 'Custom Split') {
+            const synced = syncCustomScheduleWithDays(config.customSchedule, config.daysPerWeek);
+            setConfig(prev => ({ ...prev, customSchedule: synced }));
+            setStep(4.5);
+          } else {
+            setStep(5);
+          }
+        }} className="flex-1">Continue <ArrowRight className="w-4 h-4" /></Button>
       </div>
     </div>
   );

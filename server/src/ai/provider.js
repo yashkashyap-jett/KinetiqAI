@@ -308,7 +308,7 @@ function getFallbackMealPlan(profile) {
 }
 
 // --- DETERMINISTIC WORKOUT PLAN NORMALIZER ---
-function normalizeAIWorkoutPlan(raw) {
+function normalizeAIWorkoutPlan(raw, config = null) {
   if (!raw || typeof raw !== 'object') return raw;
 
   const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -369,7 +369,7 @@ function normalizeAIWorkoutPlan(raw) {
 
   return {
     ...raw,
-    splitType: String(raw.splitType || 'Custom Split'),
+    splitType: String((config && config.splitType) || raw.splitType || 'Custom Split'),
     weeklyFrequency: typeof raw.weeklyFrequency === 'number' ? raw.weeklyFrequency : (days.filter((d) => !d.isRestDay).length || 4),
     days,
   };
@@ -391,7 +391,7 @@ async function generateAIWorkoutPlan(profile, config = null) {
     }
 
     // Apply deterministic normalization before validation
-    const normalized = normalizeAIWorkoutPlan(parsed);
+    const normalized = normalizeAIWorkoutPlan(parsed, config);
 
     const validation = validateAIResponse(workoutPlanSchema, normalized);
     if (validation.success) {
